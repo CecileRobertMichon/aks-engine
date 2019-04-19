@@ -171,6 +171,7 @@ const (
 	cisNetEnforcement                        = "k8s/cloud-init/artifacts/sysctl-d-60-CIS.conf"
 	cisLogEnforcement                        = "k8s/cloud-init/artifacts/rsyslog-d-60-CIS.conf"
 	modprobeConfCIS                          = "k8s/cloud-init/artifacts/modprobe-CIS.conf"
+	commonPassword                           = "k8s/cloud-init/artifacts/pam-d-common-password"
 )
 
 const (
