@@ -196,7 +196,7 @@ apt_get_dist_upgrade() {
     apt-get -f -y install
     apt-get dist-upgrade -y 2>&1 | tee $apt_dist_upgrade_output | grep -E "^([WE]:.*)|([eE]rr.*)$"
     [ $? -ne 0  ] && cat $apt_dist_upgrade_output && break || \
-    cat $apt_update_output
+    cat $apt_dist_upgrade_output
     if [ $i -eq $retries ]; then
       return 1
     else sleep 5
