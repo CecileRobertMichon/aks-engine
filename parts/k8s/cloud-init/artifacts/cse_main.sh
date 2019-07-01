@@ -70,6 +70,10 @@ else
 fi
 ensureAuditD
 
+if [[ ${UBUNTU_RELEASE} == "18.04" ]]; then
+    timedatectl set-ntp on
+fi
+
 if [[ -n "${MASTER_NODE}" ]] && [[ -z "${COSMOS_URI}" ]]; then
     installEtcd
 fi
