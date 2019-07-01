@@ -71,7 +71,7 @@ fi
 ensureAuditD
 
 if [[ ${UBUNTU_RELEASE} == "18.04" ]]; then
-    timedatectl set-ntp on
+    systemctl restart systemd-timesyncd
 fi
 
 if [[ -n "${MASTER_NODE}" ]] && [[ -z "${COSMOS_URI}" ]]; then
