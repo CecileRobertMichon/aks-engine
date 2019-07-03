@@ -39,19 +39,19 @@ The Azure Resource Manager template used to deploy this virtual network is:
       "name": "ExampleCustomVNET",
       "properties": {
         "addressSpace": {
-          "addressPrefixes": ["10.100.0.0/24", "10.200.0.0/24"]
+          "addressPrefixes": ["10.239.0.0/16"]
         },
         "subnets": [
           {
             "name": "ExampleMasterSubnet",
             "properties": {
-              "addressPrefix": "10.100.0.0/24"
+              "addressPrefix": "10.239.255.0/24"
             }
           },
           {
             "name": "ExampleAgentSubnet",
             "properties": {
-              "addressPrefix": "10.200.0.0/24"
+              "addressPrefix": "10.239.1.0/24"
             }
           }
         ]
@@ -77,9 +77,9 @@ az group deployment create -g aks-custom-vnet --name "CustomVNet" --template-fil
 Alternatively, you can use Azure CLI to create the vnet and the subnet directly:
 
 ```bash
-az network vnet create --resource-group aks-custom-vnet --name CustomVNET --address-prefixes 10.100.0.0/24 10.200.0.0/24 --subnet-name ExampleMasterSubnet --subnet-prefixes 10.100.0.0/24
+az network vnet create --resource-group aks-custom-vnet --name CustomVNET --address-prefixes 10.239.0.0/16 --subnet-name ExampleMasterSubnet --address-prefix 10.239.255.0/24
 
-az network vnet subnet create --resource-group aks-custom-vnet --vnet-name CustomVNET -n ExampleAgentSubnet --address-prefixes 10.200.0.0/24
+az network vnet subnet create --resource-group aks-custom-vnet --vnet-name CustomVNET -n ExampleAgentSubnet --address-prefix 10.239.1.0/24
 ```
 
 Once the deployment is completed you should see the virtual network in the resource group.
@@ -106,7 +106,8 @@ In this case, we are going to use the following template (this creates a cluster
       "dnsPrefix": "",
       "vmSize": "Standard_D2_v2",
       "vnetSubnetId": "/subscriptions/SUBSCRIPTION_ID/resourceGroups/RESOURCE_GROUP_NAME/providers/Microsoft.Network/virtualNetworks/CustomVNET/subnets/ExampleMasterSubnet",
-      "vnetCidr": "10.239.0.0/16"
+      "firstConsecutiveStaticIP": "10.239.255.239",
+      "vnetCidr": "10.239.0.0/16",
     },
     "agentPoolProfiles": [
       {
