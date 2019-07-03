@@ -53,6 +53,7 @@ ERR_CIS_ASSIGN_FILE_PERMISSION=112 # Error assigning permission to a file in CIS
 ERR_CIS_COPY_FILE=113 # Error writing a file to disk for CIS enforcement
 ERR_CIS_APPLY_PASSWORD_CONFIG=115 # Error applying CIS-recommended passwd configuration
 
+sort -r /etc/*-release
 OS=$(sort -r /etc/*-release | gawk 'match($0, /^ID(|_LIKE)=(.*)/, a) { print toupper(a[2]); exit }')
 UBUNTU_OS_NAME="UBUNTU"
 RHEL_OS_NAME="RHEL"
