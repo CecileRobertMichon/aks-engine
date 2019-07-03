@@ -671,6 +671,10 @@ func (a *Properties) validateVNET() error {
 			return e
 		}
 
+		if a.MasterProfile.VnetCidr == "" {
+			return errors.Errorf("MasterProfile.VnetCidr should be specified when using a custom vnet")
+		}
+
 		for _, agentPool := range a.AgentPoolProfiles {
 			agentSubID, agentRG, agentVNET, _, err := common.GetVNETSubnetIDComponents(agentPool.VnetSubnetID)
 			if err != nil {

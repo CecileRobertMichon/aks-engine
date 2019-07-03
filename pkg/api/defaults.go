@@ -461,11 +461,16 @@ func (p *Properties) setMasterProfileDefaults(isUpgrade, isScale bool, cloudName
 		}
 	}
 
+	if p.MasterProfile.VnetCidr == "" {
+		p.MasterProfile.VnetCidr = DefaultVNETCIDR
+	}
+
 	if p.MasterProfile.IsCustomVNET() && p.MasterProfile.IsVirtualMachineScaleSets() {
 		if p.OrchestratorProfile.OrchestratorType == Kubernetes {
 			p.MasterProfile.FirstConsecutiveStaticIP = p.MasterProfile.GetFirstConsecutiveStaticIPAddress(p.MasterProfile.VnetCidr)
 		}
 	}
+
 	// Set the default number of IP addresses allocated for masters.
 	if p.MasterProfile.IPAddressCount == 0 {
 		// Allocate one IP address for the node.

@@ -72,7 +72,6 @@ func TestGetTemplateFuncMap(t *testing.T) {
 		"GetDataDisks",
 		"HasBootstrap",
 		"GetMasterAllowedSizes",
-		"GetDefaultVNETCIDR",
 		"GetKubernetesAllowedVMSKUs",
 		"GetSizeMap",
 		"WriteLinkedTemplatesForExtensions",
@@ -109,12 +108,6 @@ func TestGetTemplateFuncMap(t *testing.T) {
 			t.Fatalf("Didn't find expected funcmap key %s.", c)
 		}
 		switch c {
-		case "GetDefaultVNETCIDR":
-			rargs := make([]reflect.Value, 0)
-			ret := v.Call(rargs)
-			if ret[0].Interface() != DefaultVNETCIDR {
-				t.Fatalf("Got unexpected default VNET CIDR")
-			}
 		case "IsMultiMasterCluster":
 			rargs := make([]reflect.Value, 0)
 			ret := v.Call(rargs)

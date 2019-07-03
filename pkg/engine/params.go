@@ -59,14 +59,15 @@ func getParameters(cs *api.ContainerService, generatorCode string, aksEngineVers
 		// Agents only, use cluster DNS prefix
 		addValue(parametersMap, "masterEndpointDNSNamePrefix", properties.HostedMasterProfile.DNSPrefix)
 	}
+	if properties.OrchestratorProfile.IsKubernetes() {
+		addValue(parametersMap, "vnetCidr", properties.MasterProfile.VnetCidr)
+		addValue(parametersMap, "vnetCidrIPv6", DefaultVNETCIDRIPv6)
+	}
 	if properties.MasterProfile != nil {
 		if properties.MasterProfile.IsCustomVNET() {
 			addValue(parametersMap, "masterVnetSubnetID", properties.MasterProfile.VnetSubnetID)
 			if properties.MasterProfile.IsVirtualMachineScaleSets() {
 				addValue(parametersMap, "agentVnetSubnetID", properties.MasterProfile.AgentVnetSubnetID)
-			}
-			if properties.OrchestratorProfile.IsKubernetes() {
-				addValue(parametersMap, "vnetCidr", properties.MasterProfile.VnetCidr)
 			}
 		} else {
 			addValue(parametersMap, "masterSubnet", properties.MasterProfile.Subnet)

@@ -410,14 +410,12 @@
       "type": "int"
     },
     "vnetCidr": {
-      "defaultValue": "{{GetDefaultVNETCIDR}}",
       "metadata": {
         "description": "Cluster vnet cidr"
       },
       "type": "string"
     },
     "vnetCidrIPv6": {
-      "defaultValue": "{{GetDefaultVNETCIDRIPv6}}",
       "metadata": {
         "description": "Cluster vnet cidr IPv6"
       },

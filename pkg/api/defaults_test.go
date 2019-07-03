@@ -1251,6 +1251,20 @@ func TestMasterProfileDefaults(t *testing.T) {
 			properties.MasterProfile.FirstConsecutiveStaticIP, "10.239.0.4")
 	}
 
+	// this validates default custom VNET settings
+	mockCS = getMockBaseContainerService("1.12.8")
+	properties = mockCS.Properties
+	properties.OrchestratorProfile.OrchestratorType = Kubernetes
+	properties.MasterProfile.VnetSubnetID = "/subscriptions/SUBSCRIPTION_ID/resourceGroups/RESOURCE_GROUP_NAME/providers/Microsoft.Network/virtualNetworks/ExampleCustomVNET/subnets/ExampleMasterSubnet"
+	properties.OrchestratorProfile.KubernetesConfig.ClusterSubnet = ""
+	properties.OrchestratorProfile.KubernetesConfig.NetworkPlugin = NetworkPluginAzure
+	properties.MasterProfile.AvailabilityProfile = VirtualMachineScaleSets
+	mockCS.SetPropertiesDefaults(false, false)
+	if properties.MasterProfile.VnetCidr != DefaultVNETCIDR {
+		t.Fatalf("Master VMSS, AzureCNI, customvnet: MasterProfile VnetCidr did not have the expected default configuration, got %s, expected %s",
+			properties.MasterProfile.VnetCidr, DefaultVNETCIDR)
+	}
+
 	// this validates default configurations for LoadBalancerSku and ExcludeMasterFromStandardLB
 	mockCS = getMockBaseContainerService("1.11.6")
 	properties = mockCS.Properties
