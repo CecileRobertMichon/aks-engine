@@ -672,7 +672,12 @@ func (a *Properties) validateVNET() error {
 		}
 
 		if a.MasterProfile.VnetCidr == "" {
-			return errors.Errorf("MasterProfile.VnetCidr should be specified when using a custom vnet")
+			if a.MasterProfile.IsVirtualMachineScaleSets() {
+				return errors.Errorf("MasterProfile.VnetCidr should be specified when using a custom vnet with VMSS master")
+			}
+			if a.HasWindows() {
+				return errors.Errorf("MasterProfile.VnetCidr should be specified when using a custom vnet with Windows agent pools")
+			}
 		}
 
 		for _, agentPool := range a.AgentPoolProfiles {
