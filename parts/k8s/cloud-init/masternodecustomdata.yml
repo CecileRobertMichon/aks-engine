@@ -58,6 +58,13 @@ write_files:
     {{WrapAsVariable "provisionConfigsCustomCloud"}}
 {{end}}
 
+- path: /etc/systemd/system/kubelet.service
+  permissions: "0644"
+  encoding: gzip
+  owner: root
+  content: !!binary |
+    {{CloudInitData "kubeletSystemdService"}}
+
 {{if not .MasterProfile.IsVHDDistro}}
     {{if .MasterProfile.IsCoreOS}}
 - path: /opt/bin/health-monitor.sh
@@ -90,13 +97,6 @@ write_files:
   owner: root
   content: !!binary |
     {{CloudInitData "dockerMonitorSystemdService"}}
-
-- path: /etc/systemd/system/kubelet.service
-  permissions: "0644"
-  encoding: gzip
-  owner: root
-  content: !!binary |
-    {{CloudInitData "kubeletSystemdService"}}
 
 - path: /opt/azure/containers/label-nodes.sh
   permissions: "0744"
@@ -347,6 +347,100 @@ MASTER_ADDONS_CONFIG_PLACEHOLDER
 MASTER_CUSTOM_FILES_PLACEHOLDER
 
 MASTER_CONTAINER_ADDONS_PLACEHOLDER
+
+- path: /var/lib/kubelet/config.yaml
+  permissions: "0644"
+  owner: root
+  content: |
+    staticPodPath: "/etc/kubernetes/manifests"
+    syncFrequency: 1m0s
+    fileCheckFrequency: 20s
+    httpCheckFrequency: 20s
+    address: 0.0.0.0
+    port: 10250
+    readOnlyPort: 10255
+    tlsCertFile: "/etc/kubernetes/certs/kubeletserver.crt"
+    tlsPrivateKeyFile: "/etc/kubernetes/certs/kubeletserver.key"
+    tlsCipherSuites:
+    - TLS_ECDHE_ECDSA_WITH_AES_128_GCM_SHA256
+    - TLS_ECDHE_RSA_WITH_AES_128_GCM_SHA256
+    - TLS_ECDHE_ECDSA_WITH_CHACHA20_POLY1305
+    - TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384
+    - TLS_ECDHE_RSA_WITH_CHACHA20_POLY1305
+    - TLS_ECDHE_ECDSA_WITH_AES_256_GCM_SHA384
+    - TLS_RSA_WITH_AES_256_GCM_SHA384
+    - TLS_RSA_WITH_AES_128_GCM_SHA256
+    rotateCertificates: true
+    authentication:
+      x509:
+        clientCAFile: "/etc/kubernetes/certs/ca.crt"
+      webhook:
+        enabled: false
+        cacheTTL: 2m0s
+      anonymous:
+        enabled: false
+    authorization:
+      mode: Webhook
+      webhook:
+        cacheAuthorizedTTL: 5m0s
+        cacheUnauthorizedTTL: 30s
+    registryPullQPS: 5
+    registryBurst: 10
+    eventRecordQPS: 0
+    eventBurst: 10
+    enableDebuggingHandlers: true
+    healthzPort: 10248
+    healthzBindAddress: 127.0.0.1
+    oomScoreAdj: -999
+    clusterDomain: cluster.local
+    clusterDNS:
+    - 10.0.0.10
+    streamingConnectionIdleTimeout: 4h0m0s
+    nodeStatusUpdateFrequency: 10s
+    nodeStatusReportFrequency: 1m0s
+    nodeLeaseDurationSeconds: 40
+    imageMinimumGCAge: 2m0s
+    imageGCHighThresholdPercent: 85
+    imageGCLowThresholdPercent: 80
+    volumeStatsAggPeriod: 1m0s
+    cgroupsPerQOS: true
+    cgroupDriver: cgroupfs
+    cpuManagerPolicy: none
+    cpuManagerReconcilePeriod: 10s
+    runtimeRequestTimeout: 2m0s
+    hairpinMode: promiscuous-bridge
+    maxPods: 30
+    podPidsLimit: -1
+    resolvConf: "/etc/resolv.conf"
+    cpuCFSQuota: true
+    cpuCFSQuotaPeriod: 100ms
+    maxOpenFiles: 1000000
+    contentType: application/vnd.kubernetes.protobuf
+    kubeAPIQPS: 5
+    kubeAPIBurst: 10
+    serializeImagePulls: true
+    evictionHard:
+      memory.available: 750Mi
+      nodefs.available: 10%
+      nodefs.inodesFree: 5%
+    evictionPressureTransitionPeriod: 5m0s
+    enableControllerAttachDetach: true
+    protectKernelDefaults: true
+    makeIPTablesUtilChains: true
+    iptablesMasqueradeBit: 14
+    iptablesDropBit: 15
+    featureGates:
+      PodPriority: true
+      RotateKubeletServerCertificate: true
+    failSwapOn: true
+    containerLogMaxSize: 10Mi
+    containerLogMaxFiles: 5
+    configMapAndSecretChangeDetectionStrategy: Cache
+    enforceNodeAllocatable:
+    - pods
+    kind: KubeletConfiguration
+    apiVersion: kubelet.config.k8s.io/v1beta1
+    
 
 - path: /etc/default/kubelet
   permissions: "0644"

@@ -56,6 +56,7 @@
 // ../../parts/k8s/addons/1.8/kubernetesmasteraddons-kubernetes-dashboard-deployment.yaml
 // ../../parts/k8s/addons/1.9/kubernetesmasteraddons-kube-dns-deployment.yaml
 // ../../parts/k8s/addons/coredns.yaml
+// ../../parts/k8s/addons/kubelet.yaml
 // ../../parts/k8s/addons/kubernetesmaster-audit-policy.yaml
 // ../../parts/k8s/addons/kubernetesmasteraddons-aad-default-admin-group-rbac.yaml
 // ../../parts/k8s/addons/kubernetesmasteraddons-azure-cloud-provider-deployment.yaml
@@ -11521,6 +11522,37 @@ func k8sAddonsCorednsYaml() (*asset, error) {
 	return a, nil
 }
 
+var _k8sAddonsKubeletYaml = []byte(`apiVersion: v1
+kind: ConfigMap
+data:
+  kubelet: |
+    {
+      "maxPods": 50, 
+      "kind": "KubeletConfiguration",
+      "apiVersion": "kubelet.config.k8s.io/v1beta1"
+    }
+metadata:
+  name: kubelet-config
+  namespace: kube-system
+  labels:
+    addonmanager.kubernetes.io/mode: Reconcile
+    kubernetes.io/cluster-service: "true"`)
+
+func k8sAddonsKubeletYamlBytes() ([]byte, error) {
+	return _k8sAddonsKubeletYaml, nil
+}
+
+func k8sAddonsKubeletYaml() (*asset, error) {
+	bytes, err := k8sAddonsKubeletYamlBytes()
+	if err != nil {
+		return nil, err
+	}
+
+	info := bindataFileInfo{name: "k8s/addons/kubelet.yaml", size: 0, mode: os.FileMode(0), modTime: time.Unix(0, 0)}
+	a := &asset{bytes: bytes, info: info}
+	return a, nil
+}
+
 var _k8sAddonsKubernetesmasterAuditPolicyYaml = []byte(`apiVersion: audit.k8s.io/v1beta1 # This is required.
 kind: Policy
 omitStages:
@@ -16163,6 +16195,7 @@ ExecStart=/usr/local/bin/kubelet \
         --enable-server \
         --node-labels="${KUBELET_NODE_LABELS}" \
         --v=2 \
+        --config=/var/lib/kubelet/config.yaml \
         --volume-plugin-dir=/etc/kubernetes/volumeplugins \
         $KUBELET_CONFIG $KUBELET_OPTS \
         $KUBELET_REGISTER_NODE $KUBELET_REGISTER_WITH_TAINTS
@@ -17285,6 +17318,15 @@ MASTER_CUSTOM_FILES_PLACEHOLDER
 
 MASTER_CONTAINER_ADDONS_PLACEHOLDER
 
+- path: /var/lib/kubelet/config.yaml
+  permissions: "0644"
+  owner: root
+  content: |
+    apiVersion: kubelet.config.k8s.io/v1beta1
+    kind: KubeletConfiguration
+    evictionHard:
+        memory.available:  "200Mi"
+
 - path: /etc/default/kubelet
   permissions: "0644"
   owner: root
@@ -17878,6 +17920,15 @@ write_files:
       name: localclustercontext
     current-context: localclustercontext
     #EOF
+
+- path: /var/lib/kubelet/config.yaml
+  permissions: "0644"
+  owner: root
+  content: |
+    apiVersion: kubelet.config.k8s.io/v1beta1
+    kind: KubeletConfiguration
+    evictionHard:
+        memory.available:  "200Mi"
 
 - path: /etc/default/kubelet
   permissions: "0644"
@@ -35351,6 +35402,7 @@ var _bindata = map[string]func() (*asset, error){
 	"k8s/addons/1.8/kubernetesmasteraddons-kubernetes-dashboard-deployment.yaml":  k8sAddons18KubernetesmasteraddonsKubernetesDashboardDeploymentYaml,
 	"k8s/addons/1.9/kubernetesmasteraddons-kube-dns-deployment.yaml":              k8sAddons19KubernetesmasteraddonsKubeDnsDeploymentYaml,
 	"k8s/addons/coredns.yaml":                                                       k8sAddonsCorednsYaml,
+	"k8s/addons/kubelet.yaml":                                                       k8sAddonsKubeletYaml,
 	"k8s/addons/kubernetesmaster-audit-policy.yaml":                                 k8sAddonsKubernetesmasterAuditPolicyYaml,
 	"k8s/addons/kubernetesmasteraddons-aad-default-admin-group-rbac.yaml":           k8sAddonsKubernetesmasteraddonsAadDefaultAdminGroupRbacYaml,
 	"k8s/addons/kubernetesmasteraddons-azure-cloud-provider-deployment.yaml":        k8sAddonsKubernetesmasteraddonsAzureCloudProviderDeploymentYaml,
@@ -35622,6 +35674,7 @@ var _bintree = &bintree{nil, map[string]*bintree{
 				"kubernetesmasteraddons-kube-dns-deployment.yaml": {k8sAddons19KubernetesmasteraddonsKubeDnsDeploymentYaml, map[string]*bintree{}},
 			}},
 			"coredns.yaml":                       {k8sAddonsCorednsYaml, map[string]*bintree{}},
+			"kubelet.yaml":                       {k8sAddonsKubeletYaml, map[string]*bintree{}},
 			"kubernetesmaster-audit-policy.yaml": {k8sAddonsKubernetesmasterAuditPolicyYaml, map[string]*bintree{}},
 			"kubernetesmasteraddons-aad-default-admin-group-rbac.yaml":           {k8sAddonsKubernetesmasteraddonsAadDefaultAdminGroupRbacYaml, map[string]*bintree{}},
 			"kubernetesmasteraddons-azure-cloud-provider-deployment.yaml":        {k8sAddonsKubernetesmasteraddonsAzureCloudProviderDeploymentYaml, map[string]*bintree{}},
