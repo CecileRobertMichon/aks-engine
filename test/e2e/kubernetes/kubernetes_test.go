@@ -840,27 +840,31 @@ var _ = Describe("Azure Container Cluster using the Kubernetes Orchestrator", fu
 		})
 
 		It("should be able to launch a long running HTTP listener and svc endpoint", func() {
-			By("Creating a php-apache deployment")
-			phpApacheDeploy, err := deployment.CreateLinuxDeployIfNotExist("deis/hpa-example", longRunningApacheDeploymentName, "default", "--requests=cpu=10m,memory=10M")
-			Expect(err).NotTo(HaveOccurred())
+			if cfg.BlockSSHPort {
+				Skip("SSH port is blocked")
+			} else {
+				By("Creating a php-apache deployment")
+				phpApacheDeploy, err := deployment.CreateLinuxDeployIfNotExist("deis/hpa-example", longRunningApacheDeploymentName, "default", "--requests=cpu=10m,memory=10M")
+				Expect(err).NotTo(HaveOccurred())
 
-			By("Ensuring that php-apache pod is running")
-			running, err := pod.WaitOnSuccesses(longRunningApacheDeploymentName, "default", 4, sleepBetweenRetriesWhenWaitingForPodReady, cfg.Timeout)
-			Expect(err).NotTo(HaveOccurred())
-			Expect(running).To(Equal(true))
+				By("Ensuring that php-apache pod is running")
+				running, err := pod.WaitOnSuccesses(longRunningApacheDeploymentName, "default", 4, sleepBetweenRetriesWhenWaitingForPodReady, cfg.Timeout)
+				Expect(err).NotTo(HaveOccurred())
+				Expect(running).To(Equal(true))
 
-			By("Ensuring that the php-apache pod has outbound internet access")
-			pods, err := phpApacheDeploy.PodsRunning()
-			Expect(err).NotTo(HaveOccurred())
-			for _, p := range pods {
-				pass, outboundErr := p.CheckLinuxOutboundConnection(5*time.Second, cfg.Timeout)
-				Expect(outboundErr).NotTo(HaveOccurred())
-				Expect(pass).To(BeTrue())
+				By("Ensuring that the php-apache pod has outbound internet access")
+				pods, err := phpApacheDeploy.PodsRunning()
+				Expect(err).NotTo(HaveOccurred())
+				for _, p := range pods {
+					pass, outboundErr := p.CheckLinuxOutboundConnection(5*time.Second, cfg.Timeout)
+					Expect(outboundErr).NotTo(HaveOccurred())
+					Expect(pass).To(BeTrue())
+				}
+
+				By("Exposing TCP 80 internally on the php-apache deployment")
+				err = phpApacheDeploy.ExposeIfNotExist("ClusterIP", 80, 80)
+				Expect(err).NotTo(HaveOccurred())
 			}
-
-			By("Exposing TCP 80 internally on the php-apache deployment")
-			err = phpApacheDeploy.ExposeIfNotExist("ClusterIP", 80, 80)
-			Expect(err).NotTo(HaveOccurred())
 		})
 
 		It("should have stable external container networking as we recycle a bunch of pods", func() {
